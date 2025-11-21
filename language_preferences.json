@@ -1,0 +1,21 @@
+{
+  "test_user": {
+    "en": {
+      "confidence": 0.95,
+      "timestamp": "2025-11-20T21:50:24.909440",
+      "count": 2
+    },
+    "es": {
+      "confidence": 0.8,
+      "timestamp": "2025-11-20T21:50:24.908061",
+      "count": 1
+    }
+  },
+  "integration_test": {
+    "en": {
+      "confidence": 0.9999953584060639,
+      "timestamp": "2025-11-20T21:50:24.918831",
+      "count": 1
+    }
+  }
+}
