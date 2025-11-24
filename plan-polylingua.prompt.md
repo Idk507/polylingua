@@ -14,13 +14,13 @@ Enabling fluid two-way conversation across multiple languages
 
 ## Plan Overview
 
-PolyLingua will be a modular system built around a FastAPI backend (Python), with clear components for audio handling, STT, language detection, translation, TTS, and a dialogue/conversation manager. You’ll start with a simple cloud‑based prototype, then refactor into clean modules with multi‑turn conversations and persistence, and finally add optional offline/local models and optimizations.
+PolyLingua will be a modular system built around a FastAPI backend (Python), with clear components for audio handling, STT, language detection, translation, TTS, and a dialogue/conversation manager. You’ll start with a simple  prototype, then refactor into clean modules with multi‑turn conversations and persistence, and finally add optional offline/local models and optimizations.
 
 ### 1. Bootstrap Project & Minimal API
 - Create Python project structure (`polylingua/` package, `main.py`).
 - Add dependencies: `fastapi`, `uvicorn`, `pydantic`, `python-dotenv`, HTTP client (e.g., `httpx` or `requests`).
 - Implement `create_app()` and a basic `GET /health` endpoint.
-- Decide initial cloud providers (e.g., OpenAI/Azure for STT/translation/TTS) and define env vars for API keys.
+
 
 ### 2. Implement Audio I/O Module
 - Create `polylingua/audio/` with:
@@ -29,12 +29,11 @@ PolyLingua will be a modular system built around a FastAPI backend (Python), wit
 - Use libraries like `pydub` or `soundfile`/`librosa` for implementation (later).
 - Ensure `AudioProcessor` exposes a single main function you’ll call from the API: `prepare_for_stt(audio_bytes) -> (wav_bytes, audio_format)`.
 
-### 3. Implement STT Module (Cloud‑First)
+### 3. Implement STT Module 
 - Create `polylingua/stt/` with:
   - `SttResult` (text, language, confidence).
   - `BaseSttEngine` abstract interface: `transcribe(audio_bytes, audio_format, language_hint=None)`.
-  - `CloudSttEngine` that calls your chosen provider (OpenAI/Azure).
-  - `SttRouterService` with `transcribe_with_best_engine(...)` (for now, always uses `CloudSttEngine`).
+   - Uses open-source Whisper model locally. Requires ffmpeg for audio processing.  - `SttRouterService` with `transcribe_with_best_engine(...)`
 - Wire basic logging and error mapping for STT errors.
 
 ### 4. Implement Language Detection Module
@@ -48,18 +47,17 @@ PolyLingua will be a modular system built around a FastAPI backend (Python), wit
 ### 5. Implement Translation Module
 - Create `polylingua/translation/` with:
   - `TranslationResult` (source_text, translated_text, source_lang, target_lang, provider).
-  - `BaseTranslator` and `CloudTranslator`: `translate(text, source_lang, target_lang)`.
+  - `BaseTranslator`: `translate(text, source_lang, target_lang)`.
   - `TranslationService` with:
     - `translate_to_internal_language(text, detected_lang, internal_lang='en')`
     - `translate_to_user_language(text, user_lang, internal_lang='en')`
     - Optional `detect_and_translate_auto(text, target_lang)`.
-- Integrate with a cloud translation API (or use same provider as STT if supported).
 
-### 6. Implement TTS Module (Cloud‑First)
+### 6. Implement TTS Module 
 - Create `polylingua/tts/` with:
   - `TtsRequest` (text, language, voice_id, style, speed).
   - `TtsResult` (audio_bytes, audio_format, duration).
-  - `BaseTtsEngine` and `CloudTtsEngine`: `synthesize(tts_request)`.
+  - `BaseTtsEngine` : `synthesize(tts_request)`.
   - `TtsRouterService` with `synthesize_with_best_engine(tts_request)`.
 - Decide default language/voice; later expose per‑user preferences.
 
@@ -68,7 +66,6 @@ PolyLingua will be a modular system built around a FastAPI backend (Python), wit
   - `ConversationTurn` (turn_id, user_utterance_text, languages, translations, assistant_response, timestamp).
   - `ConversationState` (session_id, turns, user_language_preference, internal_language, helpers like `add_turn`, `get_recent_context`).
   - `DialogueEngine`:
-    - `generate_response(internal_text, conversation_state)` to call an LLM or simple rule‑based logic.
     - `summarize_conversation(conversation_state)` for summaries or logs.
   - `ConversationManager`:
     - `handle_audio_turn(session_id, audio_bytes, source_lang_hint, target_lang)` that orchestrates the full pipeline.
@@ -91,7 +88,6 @@ PolyLingua will be a modular system built around a FastAPI backend (Python), wit
 
 ### 11. Add Local/Offline Model Support
 - Implement `LocalSttEngine`, `LocalTtsEngine`, and `LocalTranslator`.
-- Add routing/fallback between cloud and local in the router services.
 
 ### 12. Testing Strategy
 - Use `pytest` for unit tests of each module (audio, STT, LID, translation, TTS, dialogue, API, persistence).
